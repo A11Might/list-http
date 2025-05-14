@@ -1,71 +1,82 @@
-# list-http README
+# HTTP请求列表 (List HTTP Requests)
 
-This is the README for your extension "list-http". After writing up a brief description, we recommend including the following sections.
+一个简单实用的VS Code扩展，帮助你管理和导航`.http`文件中的HTTP请求。
 
-## Features
+## 功能特点
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- 在侧边栏的资源管理器中显示当前`.http`文件中的所有HTTP请求
+- 点击请求项可直接跳转到文件中对应的位置
+- 实时监听文件变化，自动更新请求列表
+- 支持所有常见HTTP方法（GET, POST, PUT, DELETE等）
+- 请求列表显示方法和URL，便于快速识别
 
-For example if there is an image subfolder under your extension project workspace:
+## 使用方法
 
-\!\[feature X\]\(images/feature-x.png\)
+1. 在VS Code中打开一个`.http`文件
+2. 在资源管理器中查看"HTTP Requests"面板，所有请求将列在其中
+3. 点击任意请求可立即跳转到文件中相应位置
+4. 编辑文件时，请求列表会自动更新
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## HTTP文件格式
 
-## Requirements
+此扩展支持标准HTTP文件格式，使用`###`分隔不同的请求，例如：
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+```
+### 获取用户列表
+GET https://api.example.com/users
 
-## Extension Settings
+### 创建新用户
+POST https://api.example.com/users
+Content-Type: application/json
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+{
+  "name": "张三",
+  "email": "zhangsan@example.com"
+}
 
-For example:
+### 删除用户
+DELETE https://api.example.com/users/123
+```
 
-This extension contributes the following settings:
+## 安装
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+有两种方式安装此扩展：
 
-## Known Issues
+1. **通过VS Code扩展市场（推荐）**
+   - 打开VS Code
+   - 转到扩展视图 (Ctrl+Shift+X 或 Cmd+Shift+X)
+   - 搜索"List HTTP Requests"
+   - 点击"Install"
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+2. **通过VSIX文件安装**
+   - 下载最新的`.vsix`文件
+   - 在VS Code中，选择"视图 -> 命令面板"或按Ctrl+Shift+P (Cmd+Shift+P on Mac)
+   - 输入"Install from VSIX"并选择下载的文件
 
-## Release Notes
+## 配置选项
 
-Users appreciate release notes as you update your extension.
+目前此扩展不需要任何特殊配置，安装后即可使用。
 
-### 1.0.0
+## 已知问题
 
-Initial release of ...
+- 非常长的HTTP请求可能导致显示问题
 
-### 1.0.1
+## 更新日志
 
-Fixed issue #.
+### 0.0.1 (当前版本)
 
-### 1.1.0
+- 初始版本发布
+- 支持基本的HTTP请求列表功能
+- 实现请求导航功能
 
-Added features X, Y, and Z.
+## 贡献
+
+欢迎提交问题和建议到我们的[GitHub仓库](https://github.com/yourusername/list-http)。
+
+## 许可证
+
+MIT
 
 ---
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**享受便捷的HTTP请求管理体验！**

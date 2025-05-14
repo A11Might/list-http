@@ -1,13 +1,25 @@
 {
   "name": "list-http",
   "displayName": "List HTTP Requests",
-  "description": "List HTTP requests from .http files",
+  "description": "在侧边栏中列出.http文件中的HTTP请求并支持快速导航",
   "version": "0.0.1",
+  "publisher": "kohath",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/a11might/list-http"
+  },
   "engines": {
     "vscode": "^1.60.0"
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "http",
+    "rest",
+    "request",
+    "api",
+    "http-client"
   ],
   "activationEvents": [
     "onView:httpRequests"
@@ -27,6 +39,10 @@
         "command": "list-http.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "list-http.openRequest",
+        "title": "打开HTTP请求"
       }
     ]
   },
@@ -50,5 +66,6 @@
     "mocha": "^8.4.0",
     "typescript": "^4.3.2",
     "vscode-test": "^1.5.2"
-  }
+  },
+  "license": "MIT"
 }
