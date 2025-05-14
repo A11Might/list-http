@@ -2,7 +2,7 @@
   "name": "list-http",
   "displayName": "List HTTP Requests",
   "description": "在侧边栏中列出.http文件中的HTTP请求并支持快速导航",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "kohath",
   "repository": {
     "type": "git",
@@ -44,7 +44,26 @@
         "command": "list-http.openRequest",
         "title": "打开HTTP请求"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "List HTTP Requests",
+      "properties": {
+        "list-http.requestDisplay.showMethod": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否在请求名称旁边显示HTTP方法 (例如 [GET])。"
+        },
+        "list-http.requestDisplay.methodPosition": {
+          "type": "string",
+          "enum": [
+            "prefix",
+            "suffix"
+          ],
+          "default": "suffix",
+          "description": "HTTP方法显示在请求名称之前 ('prefix') 或之后 ('suffix')。仅当 'showMethod' 为 true 时生效。"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
