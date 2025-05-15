@@ -4,17 +4,36 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "npm: compile",
+			"type": "npm",
+			"script": "compile",
+			"detail": "node ./esbuild.js --sourcemap",
+			"problemMatcher": [
+				"$esbuild"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared",
+				"clear": true
+			}
+		},
+		{
+			"label": "npm: watch",
 			"type": "npm",
 			"script": "watch",
-			"problemMatcher": "$tsc-watch",
+			"detail": "node ./esbuild.js --sourcemap --watch",
+			"problemMatcher": [
+				"$esbuild-watch"
+			],
 			"isBackground": true,
 			"presentation": {
 				"reveal": "never"
 			},
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
+			"group": "build"
 		}
 	]
 }
