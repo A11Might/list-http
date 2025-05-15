@@ -75,14 +75,18 @@ Content-Type: application/json
 - `list-http.requestDisplay.methodPosition`
   - **类型**: `string`
   - **可选值**: `"prefix"`, `"suffix"`
-  - **默认值**: `"suffix"`
-  - **描述**: HTTP方法显示在请求名称之前 ('prefix') 或之后 ('suffix')。仅当 `showMethod` 为 `true` 时生效。
+  - **默认值**: `"prefix"`
+  - **描述**: HTTP方法显示在请求名称之前 ('prefix') 或之后 ('suffix')。默认为 `'prefix'`。仅当 `showMethod` 为 `true` 时生效。
 
 ## 已知问题
 
 - 非常长的HTTP请求可能导致显示问题
 
 ## 更新日志
+
+### 0.0.3
+
+- **更改**: 将请求项中HTTP方法默认显示位置调整为名称之前 (`prefix`)。
 
 ### 0.0.2
 

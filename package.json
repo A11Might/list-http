@@ -2,7 +2,7 @@
   "name": "list-http",
   "displayName": "List HTTP Requests",
   "description": "在侧边栏中列出.http文件中的HTTP请求并支持快速导航",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "kohath",
   "repository": {
     "type": "git",
@@ -59,8 +59,8 @@
             "prefix",
             "suffix"
           ],
-          "default": "suffix",
-          "description": "HTTP方法显示在请求名称之前 ('prefix') 或之后 ('suffix')。仅当 'showMethod' 为 true 时生效。"
+          "default": "prefix",
+          "description": "HTTP方法显示在请求名称之前 ('prefix') 或之后 ('suffix')。默认为 'prefix'。仅当 'showMethod' 为 true 时生效。"
         }
       }
     }

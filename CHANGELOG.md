@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.3] - 2025-05-15
+### Changed
+- 将请求项中HTTP方法的默认显示位置从后缀 (`suffix`) 更改为前缀 (`prefix`)。
+
 ## [0.0.2] - 2025-05-14
 ### Added
 - 请求分组功能：如果 `###` 分隔的块中第一行有效内容为 `# 注释` 且块内无HTTP方法，则视为分组。
