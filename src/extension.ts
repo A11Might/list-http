@@ -19,9 +19,19 @@ export function activate(context: vscode.ExtensionContext) {
 		// 在继续之前，确保 item 是一个请求并且具有必要的属性
 		if (item && item.itemType === 'request' && item.filePath && typeof item.lineNumber === 'number') {
 			try {
-				// 打开文件并跳转到对应位置
-				const document = await vscode.workspace.openTextDocument(item.filePath);
-				const editor = await vscode.window.showTextDocument(document);
+				// 检查当前是否已经打开了该文件
+				const currentEditor = vscode.window.activeTextEditor;
+				const isFileAlreadyOpen = currentEditor && currentEditor.document.uri.fsPath === item.filePath;
+
+				let editor;
+				if (isFileAlreadyOpen) {
+					// 如果文件已经打开，直接使用当前编辑器
+					editor = currentEditor;
+				} else {
+					// 否则打开文件
+					const document = await vscode.workspace.openTextDocument(item.filePath);
+					editor = await vscode.window.showTextDocument(document);
+				}
 
 				// 获取特定行的位置 (lineNumber 是从1开始的)
 				const position = new vscode.Position(item.lineNumber - 1, 0);
