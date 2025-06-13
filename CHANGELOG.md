@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Released]
 
+## [0.0.5] - 2025-06-13
+### Fixed
+- 修复了在分栏情况下点击请求导航时的问题，现在会正确地在已存在的编辑器中导航，而不会重复打开文件。
+
 ## [0.0.4] - 2025-06-12
 ### Fixed
 - 修复了在分栏中点击请求导航时重新打开文件的问题，现在会直接跳转到已打开的文件并导航到对应请求。
