@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as vscode from 'vscode';
 
 export interface HttpRequestData {
     type: 'request';
@@ -7,13 +8,13 @@ export interface HttpRequestData {
     content: string;
     method?: string;
     url?: string;
-    lineNumber: number; // 起始###的行号
+    range: vscode.Range; // 请求定义的范围
 }
 
 export interface HttpGroupData {
     type: 'group';
     name: string; // 从###后的注释派生的名称
-    lineNumber: number; // 起始###的行号
+    range: vscode.Range; // 分组定义的范围
 }
 
 export type HttpParsedElement = HttpRequestData | HttpGroupData;
@@ -26,6 +27,7 @@ export class HttpFileParser {
 
         let currentBlockRawLines: string[] = [];
         let blockStartLineNumber = -1;
+        let blockEndLineNumber = -1;
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
@@ -34,7 +36,8 @@ export class HttpFileParser {
             if (line.startsWith('###')) {
                 if (blockStartLineNumber !== -1) {
                     // 处理先前累积的块
-                    HttpFileParser.processBlock(currentBlockRawLines, blockStartLineNumber, parsedElements);
+                    blockEndLineNumber = i;
+                    HttpFileParser.processBlock(currentBlockRawLines, blockStartLineNumber, blockEndLineNumber, parsedElements);
                 }
                 // 开始一个新块
                 blockStartLineNumber = lineNumber;
@@ -53,13 +56,15 @@ export class HttpFileParser {
 
         // 循环结束后处理最后一个块
         if (blockStartLineNumber !== -1) {
-            HttpFileParser.processBlock(currentBlockRawLines, blockStartLineNumber, parsedElements);
+            blockEndLineNumber = lines.length;
+            HttpFileParser.processBlock(currentBlockRawLines, blockStartLineNumber, blockEndLineNumber, parsedElements);
         }
 
         // 回退逻辑：如果没有找到'###'分隔符且文件有内容，则将整个文件视为单个请求。
         if (parsedElements.length === 0 && fileContent.trim() !== '') {
             const content = fileContent.trim();
             const firstLineNumberInFile = HttpFileParser.findFirstNonEmptyLineNumber(lines);
+            const range = new vscode.Range(new vscode.Position(firstLineNumberInFile - 1, 0), new vscode.Position(lines.length - 1, lines[lines.length - 1].length));
 
             let firstLineForName = '';
             const contentLines = content.split('\n');
@@ -75,7 +80,7 @@ export class HttpFileParser {
                 content: content,
                 method: methodMatch ? methodMatch[1] : undefined,
                 url: methodMatch ? methodMatch[2] : undefined,
-                lineNumber: firstLineNumberInFile
+                range: range
                 // commentName 默认为 undefined
             });
         }
@@ -92,11 +97,13 @@ export class HttpFileParser {
         return 1; // 如果 fileContent.trim() 不为空，则不应到达此处
     }
 
-    private static processBlock(rawBlockLines: string[], startLine: number, elements: HttpParsedElement[]) {
+    private static processBlock(rawBlockLines: string[], startLine: number, endLine: number, elements: HttpParsedElement[]) {
         const blockContent = rawBlockLines.join('\n').trim(); // 修剪整个收集到的块内容
         if (!blockContent) {
             return; // 忽略空块
         }
+
+        const range = new vscode.Range(new vscode.Position(startLine - 1, 0), new vscode.Position(endLine - 1, 0));
 
         let firstMeaningfulLineInBlock = '';
         // 从构成块的原始行中找到第一个非空行
@@ -121,7 +128,7 @@ export class HttpFileParser {
             elements.push({
                 type: 'group',
                 name: groupName || "未命名分组", // 确保组名不为空
-                lineNumber: startLine
+                range: range
             });
         } else {
             // 这是一个请求
@@ -153,8 +160,8 @@ export class HttpFileParser {
                 content: blockContent,
                 method: methodMatchDetails ? methodMatchDetails[1] : undefined,
                 url: methodMatchDetails ? methodMatchDetails[2] : undefined,
-                lineNumber: startLine
+                range: range
             });
         }
     }
-} 
+}

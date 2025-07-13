@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
-import { HttpFileParser, HttpParsedElement, HttpRequestData, HttpGroupData } from './HttpFileParser';
+import { HttpFileParser, HttpRequestData, HttpGroupData } from './HttpFileParser';
 
 export class HttpRequestItem extends vscode.TreeItem {
     public children: HttpRequestItem[] | undefined;
     public itemType: 'group' | 'request';
     public filePath: string; // 始终指向 .http 文件
-    public lineNumber: number; // 请求或分组定义的行号
+    public range: vscode.Range; // 请求或分组定义的范围
     public requestContent?: string; // 仅用于请求
 
     constructor(
@@ -13,21 +13,21 @@ export class HttpRequestItem extends vscode.TreeItem {
         collapsibleState: vscode.TreeItemCollapsibleState,
         itemType: 'group' | 'request',
         filePath: string,
-        lineNumber: number,
+        range: vscode.Range,
         requestContent?: string,
         children?: HttpRequestItem[]
     ) {
         super(label, collapsibleState);
         this.itemType = itemType;
         this.filePath = filePath;
-        this.lineNumber = lineNumber;
+        this.range = range;
         this.requestContent = requestContent;
         this.children = children;
 
         if (itemType === 'request') {
-            this.tooltip = `${this.label} (行 ${lineNumber})`;
+            this.tooltip = `${this.label} (行 ${this.range.start.line + 1})`;
             // 对于请求，描述可以显示片段，如果标签足够，也可以为空
-            this.description = requestContent ? requestContent.split('\n')[0].substring(0, 30) + '...' : `行 ${lineNumber}`;
+            this.description = requestContent ? requestContent.split('\n')[0].substring(0, 30) + '...' : `行 ${this.range.start.line + 1}`;
             this.command = {
                 command: 'list-http.openRequest',
                 title: '打开请求',
@@ -35,8 +35,8 @@ export class HttpRequestItem extends vscode.TreeItem {
             };
             this.contextValue = 'httpRequest';
         } else { // 分组
-            this.tooltip = `${this.label} (分组于行 ${lineNumber})`;
-            this.description = `分组 (行 ${lineNumber})`;
+            this.tooltip = `${this.label} (分组于行 ${this.range.start.line + 1})`;
+            this.description = `分组 (行 ${this.range.start.line + 1})`;
             this.contextValue = 'httpGroup';
             // 分组本身不通过主命令打开特定的请求行
         }
@@ -48,6 +48,7 @@ export class HttpRequestProvider implements vscode.TreeDataProvider<HttpRequestI
     readonly onDidChangeTreeData: vscode.Event<HttpRequestItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
     private currentHttpFile: string | undefined;
+    private allItems: HttpRequestItem[] = [];
 
     constructor() {
         vscode.window.onDidChangeActiveTextEditor((editor) => {
@@ -85,6 +86,30 @@ export class HttpRequestProvider implements vscode.TreeDataProvider<HttpRequestI
         return element;
     }
 
+    getParent(element: HttpRequestItem): vscode.ProviderResult<HttpRequestItem> {
+        if (element.itemType === 'group') {
+            return null; // 分组是根节点
+        }
+        // 寻找包含此元素作为子项的父分组
+        const parentGroup = this.allItems.find(item =>
+            item.itemType === 'group' && item.children?.includes(element)
+        );
+        return parentGroup || null;
+    }
+
+    getItemForPosition(position: vscode.Position): HttpRequestItem | undefined {
+        // 查找最精确匹配的项，即范围最小的项
+        let bestMatch: HttpRequestItem | undefined = undefined;
+        for (const item of this.allItems) {
+            if (item.range.contains(position)) {
+                if (!bestMatch || bestMatch.range.contains(item.range)) {
+                    bestMatch = item;
+                }
+            }
+        }
+        return bestMatch;
+    }
+
     async getChildren(element?: HttpRequestItem): Promise<HttpRequestItem[]> {
         if (element && element.itemType === 'group') {
             return element.children || [];
@@ -102,6 +127,8 @@ export class HttpRequestProvider implements vscode.TreeDataProvider<HttpRequestI
             return Promise.resolve([]);
         }
 
+        this.allItems = []; // 清空旧数据
+
         // 读取配置
         const config = vscode.workspace.getConfiguration('list-http.requestDisplay');
         const showMethodConfig = config.get<boolean>('showMethod', true);
@@ -113,18 +140,21 @@ export class HttpRequestProvider implements vscode.TreeDataProvider<HttpRequestI
             let currentGroup: HttpRequestItem | null = null;
 
             for (const parsedElement of parsedElements) {
+                let item: HttpRequestItem;
                 if (parsedElement.type === 'group') {
                     const groupData = parsedElement as HttpGroupData;
-                    currentGroup = new HttpRequestItem(
+                    item = new HttpRequestItem(
                         groupData.name,
                         vscode.TreeItemCollapsibleState.Collapsed,
                         'group',
                         filePath, // 分组定义的文件路径
-                        groupData.lineNumber,
+                        groupData.range,
                         undefined, // 分组没有请求内容
                         [] // 初始化分组的子项数组
                     );
+                    currentGroup = item;
                     rootItems.push(currentGroup);
+                    this.allItems.push(item);
                 } else if (parsedElement.type === 'request') {
                     const requestData = parsedElement as HttpRequestData;
                     let displayLabel = '';
@@ -172,20 +202,21 @@ export class HttpRequestProvider implements vscode.TreeDataProvider<HttpRequestI
                         displayLabel = "未命名请求";
                     }
 
-                    const requestItem = new HttpRequestItem(
+                    item = new HttpRequestItem(
                         displayLabel,
                         vscode.TreeItemCollapsibleState.None,
                         'request',
                         filePath, // 请求的文件路径
-                        requestData.lineNumber,
+                        requestData.range,
                         requestData.content
                     );
 
                     if (currentGroup) {
-                        currentGroup.children!.push(requestItem); // 添加到当前分组的子项
+                        currentGroup.children!.push(item); // 添加到当前分组的子项
                     } else {
-                        rootItems.push(requestItem); // 作为顶级请求添加
+                        rootItems.push(item); // 作为顶级请求添加
                     }
+                    this.allItems.push(item);
                 }
             }
             return rootItems;
@@ -196,4 +227,4 @@ export class HttpRequestProvider implements vscode.TreeDataProvider<HttpRequestI
             return [];
         }
     }
-} 
+}
