@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Released]
 
+## [0.0.7] - 2025-07-14
+### Fixed
+- 修复了第一次发起HTTP请求时导航路由消失的问题，现在当焦点切换到响应面板时，侧边栏的请求列表会正确保持显示。
+
 ## [0.0.6] - 2025-07-13
 ### Added
 - **双向绑定**: 现在当光标在 `.http` 文件中移动到某个请求的范围内时，侧边栏对应的请求项会自动高亮显示。

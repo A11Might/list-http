@@ -54,8 +54,10 @@ export class HttpRequestProvider implements vscode.TreeDataProvider<HttpRequestI
         vscode.window.onDidChangeActiveTextEditor((editor) => {
             if (editor && editor.document.fileName.endsWith('.http')) {
                 this.currentHttpFile = editor.document.fileName;
+                // 只有当切换到.http文件时才刷新
+                this.refresh();
             }
-            this.refresh();
+            // 移除无条件的refresh()调用，避免切换到响应面板时清空树视图
         });
 
         let debounceTimer: NodeJS.Timeout | null = null;
